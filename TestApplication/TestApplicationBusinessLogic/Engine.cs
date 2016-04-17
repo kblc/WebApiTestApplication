@@ -147,10 +147,26 @@ namespace TestApplication.BusinessLogic
             return new Engine();
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    db.Dispose();
+                    db = null;
+                }
+                disposedValue = true;
+            }
+        }
+
         public void Dispose()
         {
-            db.Dispose();
-            db = null;
+            Dispose(true);
         }
+        #endregion
     }
 }
