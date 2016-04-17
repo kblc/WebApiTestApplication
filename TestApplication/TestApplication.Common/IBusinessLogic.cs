@@ -16,7 +16,7 @@ namespace TestApplication.Common
         /// </summary>
         /// <param name="includeOrders">True to include orders</param>
         /// <returns>Customer array</returns>
-        ICustomer[] GetCustomers(bool includeOrders);
+        ICustomer[] GetCustomers();
 
         /// <summary>
         /// Get customer by identifier

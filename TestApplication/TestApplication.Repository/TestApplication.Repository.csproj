@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{95C00C49-2750-44AA-BED2-7062F7A38881}</ProjectGuid>
+    <ProjectGuid>{D42B1235-EE8B-4E07-A36A-09F5F66B7EEA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestApplication.BusinessLogic</RootNamespace>
-    <AssemblyName>TestApplication.BusinessLogic</AssemblyName>
+    <RootNamespace>TestApplication.Repository</RootNamespace>
+    <AssemblyName>TestApplication.Repository</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -33,10 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper, Version=4.2.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\packages\AutoMapper.4.2.1\lib\net45\AutoMapper.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -55,21 +51,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="dto\CustomerDto.cs" />
-    <Compile Include="dto\OrderDto.cs" />
-    <Compile Include="dto\report\CustomerReportDto.cs" />
-    <Compile Include="Engine.cs" />
+    <Compile Include="dbo\CustomerDbo.cs" />
+    <Compile Include="dbo\OrderDbo.cs" />
+    <Compile Include="Migrations\201604171146313_Initial.cs" />
+    <Compile Include="Migrations\201604171146313_Initial.Designer.cs">
+      <DependentUpon>201604171146313_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RepositoryContext.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestApplication.Common\TestApplication.Common.csproj">
-      <Project>{c9532091-e448-49dd-bf52-5baf64ba8882}</Project>
-      <Name>TestApplication.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TestApplication.Repository\TestApplication.Repository.csproj">
-      <Project>{d42b1235-ee8b-4e07-a36a-09f5f66b7eea}</Project>
-      <Name>TestApplication.Repository</Name>
-    </ProjectReference>
+    <EmbeddedResource Include="Migrations\201604171146313_Initial.resx">
+      <DependentUpon>201604171146313_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

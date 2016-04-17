@@ -17,7 +17,7 @@ namespace TestApplication.Controllers
         {
             using (var logic = Engine.Create())
             {
-                return logic.GetCustomers(false).Select(c => Customer.GetByBusinessLogic(c)).ToArray();
+                return logic.GetCustomers().Select(c => Customer.GetByBusinessLogic(c)).ToArray();
             }
         }
 

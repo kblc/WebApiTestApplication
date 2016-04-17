@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TestApplication.Common;
 
-namespace TestApplication.BusinessLogic.dto.Models
+namespace TestApplication.BusinessLogic.dto
 {
     /// <summary>
     /// Customer

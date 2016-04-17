@@ -4,9 +4,10 @@ using TestApplication.BusinessLogic;
 
 namespace TestApplication.Controllers
 {
+    [RoutePrefix("api/reports")]
     public class ReportsController : ApiController
     {
-        [Route("api/ReportsController/Total")]
+        [Route("total")]
         public CustomerReport GetCustomerTotalReport()
         {
             using (var logic = Engine.Create())

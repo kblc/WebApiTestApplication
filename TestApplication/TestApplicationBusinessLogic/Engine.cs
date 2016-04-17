@@ -3,46 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using TestApplication.Common;
 using TestApplication.Common.reports;
-using TestApplication.BusinessLogic.dto.Models;
+using TestApplication.BusinessLogic.dto;
+using AutoMapper;
 
 namespace TestApplication.BusinessLogic
 {
     public class Engine : IBusinessLogic
     {
-        private static List<CustomerDto> FakeCustomerDb = new List<CustomerDto>();
-        private static long idCustomer = 0;
-        private static long idOrder = 0;
+        private Repository.RepositoryContext db;
 
         static Engine()
         {
-            var customer0 = new CustomerDto() { Id = ++idCustomer, Email = "customer0@domain.com", Name = "customer0" }; 
-            customer0.Orders = new List<OrderDto>(new[] {
-                new OrderDto() { Id = ++idOrder, Price = 0.123m },
-                new OrderDto() { Id = ++idOrder, Price = 0.321m }
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<Repository.dbo.OrderDbo, OrderDto>();
+                cfg.CreateMap<OrderDto, Repository.dbo.OrderDbo>();
+                cfg.CreateMap<IOrder, Repository.dbo.OrderDbo>();
+                cfg.CreateMap<Repository.dbo.CustomerDbo, CustomerDto>()
+                    .ForMember(dest => dest.Orders, opt => opt.Ignore());
+                cfg.CreateMap<CustomerDto, Repository.dbo.CustomerDbo>();
+                cfg.CreateMap<ICustomer, Repository.dbo.CustomerDbo>();
             });
-            FakeCustomerDb.Add(customer0);
-
-            var customer1 = new CustomerDto() { Id = ++idCustomer, Email = "customer1@domain.com", Name = "customer1" };
-            customer1.Orders = new List<OrderDto>(new[] {
-                new OrderDto() { Id = ++idOrder, Price = 0.456m },
-                new OrderDto() { Id = ++idOrder, Price = 0.654m }
-            });
-            FakeCustomerDb.Add(customer1);
         }
 
         /// <summary>
         /// User can't create business logic object
         /// </summary>
-        private Engine() {}
+        private Engine()
+        {
+            db = new Repository.RepositoryContext();
+        }
 
         /// <summary>
         /// Get all customers
         /// </summary>
         /// <param name="includeOrders">True to include orders</param>
         /// <returns>Customer array</returns>
-        public ICustomer[] GetCustomers(bool includeOrders)
+        public ICustomer[] GetCustomers()
         {
-            return FakeCustomerDb.Select(i => ConvertToCustomerDto(i, includeOrders)).ToArray();
+            return db.Customers.ToArray().Select(i => Mapper.Map<CustomerDto>(i)).ToArray();
         }
 
         /// <summary>
@@ -52,10 +50,13 @@ namespace TestApplication.BusinessLogic
         /// <returns>Customer. NUll if not found</returns>
         public ICustomer GetCustomer(long customerId)
         {
-            var foundedCustomer = FakeCustomerDb.FirstOrDefault(c => c.Id == customerId);
+            var foundedCustomer = db.Customers.FirstOrDefault(c => c.Id == customerId);
             return (foundedCustomer == null)
                 ? null
-                : ConvertToCustomerDto(foundedCustomer, true);
+                : Mapper.Map<Repository.dbo.CustomerDbo, CustomerDto>(foundedCustomer, opt => opt.AfterMap((src,dst) => 
+                {
+                    dst.Orders = src.Orders.Select(o => Mapper.Map<OrderDto>(o)).ToList();
+                }));
         }
 
 
@@ -82,16 +83,20 @@ namespace TestApplication.BusinessLogic
             if (order == null)
                 return null;
 
-            var customer = FakeCustomerDb.FirstOrDefault(c => c.Id == order.CustomerId);
+            var customer = db.Customers.FirstOrDefault(c => c.Id == order.CustomerId);
 
             if (customer == null)
                 return null;
 
-            var orderDto = ConvertToOrderDto(order);
-            customer.Orders.Add(orderDto);
+            var dbOrder = db.Orders.FirstOrDefault(o => o.Id == order.Id) ?? new Repository.dbo.OrderDbo();
+            Mapper.Map(order, dbOrder, opt => opt.AfterMap((src,dst) => {
+                dst.Customer = customer;
+            }));
+            if (dbOrder.Id == 0)
+                db.Orders.Add(dbOrder);
 
-            orderDto.Id = ++idOrder;
-            return orderDto;
+            db.SaveChanges();
+            return Mapper.Map<OrderDto>(dbOrder);
         }
 
         /// <summary>
@@ -101,10 +106,15 @@ namespace TestApplication.BusinessLogic
         /// <returns>Customer</returns>
         public ICustomer SaveCustomer(ICustomer customer)
         {
-            var result = ConvertToCustomerDto(customer, true);
-            result.Id = ++idCustomer;
-            FakeCustomerDb.Add(result);
-            return result;
+            if (customer == null)
+                return null;
+
+            var dbCustomer = db.Customers.FirstOrDefault(c => c.Id == customer.Id) ?? new Repository.dbo.CustomerDbo();
+            Mapper.Map(customer, dbCustomer);
+            if (dbCustomer.Id == 0)
+                db.Customers.Add(dbCustomer);
+            db.SaveChanges();
+            return Mapper.Map<CustomerDto>(dbCustomer);
         }
 
         /// <summary>
@@ -137,11 +147,11 @@ namespace TestApplication.BusinessLogic
         /// <returns>Report</returns>
         public ICustomerReport CreateCustomerReport()
         {
-            var orders = FakeCustomerDb.SelectMany(c => c.Orders).Where(o => o != null);
+            var ordersCount = db.Orders.Count();
             var report = new dto.report.CustomerReportDto() {
-                TotalCustomerCount = FakeCustomerDb.Count(),
-                TotalOrderCount = orders.Count(),
-                AvgPrice = orders.Count() == 0 ? 0 : orders.Select(o => o.Price).Average()
+                TotalCustomerCount = db.Customers.Count(),
+                TotalOrderCount = ordersCount,
+                AvgPrice = ordersCount == 0 ? 0 : db.Orders.Select(o => o.Price).Average()
             };
             return report;
         }
@@ -157,7 +167,8 @@ namespace TestApplication.BusinessLogic
 
         public void Dispose()
         {
-            //
+            db.Dispose();
+            db = null;
         }
     }
 }

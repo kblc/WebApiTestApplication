@@ -1,7 +1,7 @@
 ﻿using System;
 using TestApplication.Common;
 
-namespace TestApplication.BusinessLogic.dto.Models
+namespace TestApplication.BusinessLogic.dto
 {
     /// <summary>
     /// Customer order
