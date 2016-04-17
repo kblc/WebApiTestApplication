@@ -7,6 +7,12 @@ namespace TestApplication.Controllers
     [RoutePrefix("api/reports")]
     public class ReportsController : ApiController
     {
+        /// <summary>
+        /// Get customer's total report
+        /// </summary>
+        /// <remarks>GET api/reports/total</remarks>
+        /// <returns>Report</returns>
+        [HttpGet]
         [Route("total")]
         public CustomerReport GetCustomerTotalReport()
         {

@@ -40,7 +40,10 @@ namespace TestApplication.BusinessLogic
         /// <returns>Customer array</returns>
         public ICustomer[] GetCustomers()
         {
-            return db.Customers.ToArray().Select(i => Mapper.Map<CustomerDto>(i)).ToArray();
+            return db.Customers.ToArray().Select(i => Mapper.Map<Repository.dbo.CustomerDbo, CustomerDto>(i, opt => opt.AfterMap((src, dst) =>
+            {
+                dst.Orders = new List<OrderDto>();
+            }))).ToArray();
         }
 
         /// <summary>
@@ -114,31 +117,10 @@ namespace TestApplication.BusinessLogic
             if (dbCustomer.Id == 0)
                 db.Customers.Add(dbCustomer);
             db.SaveChanges();
-            return Mapper.Map<CustomerDto>(dbCustomer);
-        }
-
-        /// <summary>
-        /// Convert customer model abstraction to DTO
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <param name="includeOrders">Include orders inside</param>
-        /// <returns>Customer abstraction</returns>
-        private CustomerDto ConvertToCustomerDto(ICustomer customer, bool includeOrders)
-        {
-            var resultCustomer = new CustomerDto() { Id = customer.Id, Email = customer.Email, Name = customer.Name };
-            if (includeOrders && customer.Orders != null)
-                resultCustomer.Orders = customer.Orders.Select(ConvertToOrderDto).ToList();
-            return resultCustomer;
-        }
-
-        /// <summary>
-        /// Convert order model abstraction to DTO
-        /// </summary>
-        /// <param name="order">Order</param>
-        /// <returns>Order abstraction</returns>
-        private OrderDto ConvertToOrderDto(IOrder order)
-        {
-            return new OrderDto() { Id = order.Id, CreatedDate = order.CreatedDate, CustomerId = order.CustomerId, Price = order.Price };
+            return Mapper.Map<Repository.dbo.CustomerDbo, CustomerDto>(dbCustomer, opt => opt.AfterMap((src, dst) =>
+            {
+                dst.Orders = new List<OrderDto>();
+            }));
         }
 
         /// <summary>

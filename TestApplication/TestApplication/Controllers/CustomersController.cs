@@ -10,7 +10,11 @@ namespace TestApplication.Controllers
     [RoutePrefix("api/customers")]
     public class CustomersController : ApiController
     {
-        // GET api/customers
+        /// <summary>
+        /// Get all customers without orders
+        /// </summary>
+        /// <remarks>GET api/customers</remarks>
+        /// <returns>Customer list</returns>
         [HttpGet]
         [Route("")]
         public IEnumerable<Customer> GetCustomers()
@@ -21,7 +25,12 @@ namespace TestApplication.Controllers
             }
         }
 
-        // GET api/customers/5
+        /// <summary>
+        /// Get single customer by identifier
+        /// </summary>
+        /// <param name="customerId">Customer's identifier</param>
+        /// <remarks>GET api/customers/5</remarks>
+        /// <returns>Customer with orders</returns>
         [HttpGet]
         [Route("{customerId:int}")]
         public CustomerWidthOrders GetCustomer(int customerId)
@@ -32,7 +41,12 @@ namespace TestApplication.Controllers
             }
         }
 
-        // PUT api/customers
+        /// <summary>
+        /// Add new customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <remarks>PUT api/customers</remarks>
+        /// <returns>Added customer</returns>
         [HttpPut]
         [Route("", Order = 10)]
         public Customer AddCustomer([FromBody()]Customer customer)
@@ -47,7 +61,13 @@ namespace TestApplication.Controllers
             }
         }
 
-        // PUT api/customers/5
+        /// <summary>
+        /// Add customer's order
+        /// </summary>
+        /// <param name="customerId">Customer's identifier</param>
+        /// <param name="order">Customer's order</param>
+        /// <remarks>PUT api/customers/5</remarks>
+        /// <returns>Added order</returns>
         [HttpPut]
         [Route("{customerId:int}", Order = 0)]
         [Route("{customerId:int}/orders")]
@@ -68,10 +88,15 @@ namespace TestApplication.Controllers
             }
         }
 
-        // GET api/customers/5/orders
+        /// <summary>
+        /// Get customer's orders by customer identifier
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <remarks>GET api/customers/5/orders</remarks>
+        /// <returns>Orders for customer</returns>
         [HttpGet]
         [Route("{customerId:int}/orders")]
-        public IEnumerable<Order> GetOrdersOrder(int customerId)
+        public IEnumerable<Order> GetCustomerOrders(int customerId)
         {
             using (var logic = Engine.Create())
             {
